@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+
+jobs:
+  cmake:
+    strategy:
+      matrix:
+        ros_distro: [humble, rolling]
+        preset: [debug, release, asan, codecov]
+    runs-on: ubuntu-22.04
+    container: ghcr.io/picknikrobotics/rsl:upstream-${{ matrix.ros_distro }}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Cache ccache
+        uses: pat-s/always-upload-cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-cmake-${{ matrix.ros_distro }}-${{ matrix.preset }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-cmake-${{ matrix.ros_distro }}-${{ matrix.preset }}-${{ github.sha }}
+            ccache-cmake-${{ matrix.ros_distro }}-${{ matrix.preset }}
+      - name: Source ROS
+        run: |
+          . /opt/ros/${{ matrix.ros_distro }}/setup.sh
+          echo "$(env)" >> $GITHUB_ENV
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+      - name: Build
+        run: cmake --build build/${{ matrix.preset }}
+      - name: Test
+        run: ctest --test-dir build/${{ matrix.preset }} --rerun-failed --output-on-failure
+      - name: Build Doxygen Site
+        run: cmake --build build/${{ matrix.preset }} --target docs
+      - name: Analyze
+        run: cmake --build build/${{ matrix.preset }} --target tidy
+      - name: Generate LCOV report
+        if: ${{ matrix.preset == 'codecov' }}
+        run: lcov -c -d . -o coverage.info --no-external --exclude "*/build/**"
+      - uses: codecov/codecov-action@v3
+        if: ${{ matrix.preset == 'codecov' }}
+        with:
+          files: ./coverage.info
+          name: codecov-umbrella
+          flags: ${{ matrix.ros_distro }}
+
+  ros:
+    strategy:
+      matrix:
+        ros_distro: [humble, rolling]
+    runs-on: ubuntu-22.04
+    container: ghcr.io/picknikrobotics/rsl:upstream-${{ matrix.ros_distro }}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Cache ccache
+        uses: pat-s/always-upload-cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-ros-${{ matrix.ros_distro }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-ros-${{ matrix.ros_distro }}-${{ github.sha }}
+            ccache-ros-${{ matrix.ros_distro }}
+      - uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: rsl
+          target-ros2-distro: ${{ matrix.ros_distro }}
+          colcon-defaults: |
+            {
+              "build": {
+                "mixin": ["ccache", "lld"]
+              }
+            }

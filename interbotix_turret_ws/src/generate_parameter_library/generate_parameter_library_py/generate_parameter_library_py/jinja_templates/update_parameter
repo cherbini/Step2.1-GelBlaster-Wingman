@@ -1,0 +1,8 @@
+if (param.get_name() == (prefix_ + "{{parameter_name}}")) {
+{%- filter indent(width=4) %}
+{% if parameter_validations|length -%}
+{{parameter_validations-}}
+{% endif -%}
+updated_params.{{parameter_name}} = param.{{parameter_as_function}};
+{% endfilter -%}
+}
