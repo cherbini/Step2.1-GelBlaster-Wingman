@@ -1,0 +1,20 @@
+[Unit]
+After=network-online.target
+Description=ROS2 Gelblaster Turret startup
+
+[Service]
+Environment=HOME=/home/ubuntu
+Environment=OPENBLAS_CORETYPE=ARMV8
+Environment=DEPTHAI_DEBUG=1
+Environment=LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+Environment=PYTHONPATH=/usr/local/lib/python3.8/site-packages/:$PYTHONPATH
+ExecStart=/bin/bash -c 'source /home/ubuntu/ros2_humble/install/setup.sh; source /home/ubuntu/luxonis_oak_ws/install/setup.sh; source /home/ubuntu/interbotix_turret_ws/install/setup.sh; source /home/ubuntu/jetson_stats_ws/install/setup.sh; \
+ros2 launch depthai_examples yolov4_publisher.launch.py'
+
+RemainAfterExit=no
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=user.target
+

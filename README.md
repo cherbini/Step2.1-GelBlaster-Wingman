@@ -3,6 +3,7 @@ Step 2.1 version of the Gelblaster AI Turret
 
 Unspecificed git branches from:
 
+```
 https://github.com/ament/ament_cmake.git
 https://github.com/ament/ament_index.git
 https://github.com/ament/ament_lint.git
@@ -32,7 +33,6 @@ https://github.com/luxonis/depthai-ros.git
 https://github.com/lz4/lz4.git
 https://github.com/MAVProxyUser/depthai-ros.git
 https://github.com/meta-toolkit/meta-cmake.git
-https://github.com/NVIDIA-AI-IOT/ros2_jetson_stats.git
 https://github.com/orocos/orocos_kinematics_dynamics.git
 https://github.com/osrf/osrf_pycommon.git
 https://github.com/osrf/osrf_testing_tools_cpp.git
@@ -148,5 +148,6 @@ https://github.com/skystrife/cpptoml.git
 https://github.com/UGA-BSAIL/dynamixel-controller
 https://github.com/uncrustify/uncrustify.git
 https://github.com/yaml/libyaml.git
+```
 
 
