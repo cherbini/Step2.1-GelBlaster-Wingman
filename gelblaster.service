@@ -3,6 +3,8 @@ After=network-online.target
 Description=ROS2 Gelblaster Turret startup
 
 [Service]
+User=ubuntu
+Group=ubuntu
 Environment=HOME=/home/ubuntu
 Environment=OPENBLAS_CORETYPE=ARMV8
 #Environment=DEPTHAI_DEBUG=1
