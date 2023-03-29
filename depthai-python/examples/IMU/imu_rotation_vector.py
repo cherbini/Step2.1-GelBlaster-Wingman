@@ -5,16 +5,6 @@ import depthai as dai
 import time
 import math
 
-device = dai.Device()
-
-imuType = device.getConnectedIMU()
-imuFirmwareVersion = device.getIMUFirmwareVersion()
-print(f"IMU type: {imuType}, firmware version: {imuFirmwareVersion}")
-
-if imuType != "BNO086":
-    print("Rotation vector output is supported only by BNO086!")
-    exit(1)
-
 # Create pipeline
 pipeline = dai.Pipeline()
 
@@ -38,8 +28,7 @@ imu.setMaxBatchReports(10)
 imu.out.link(xlinkOut.input)
 
 # Pipeline is defined, now we can connect to the device
-with device:
-    device.startPipeline(pipeline)
+with dai.Device(pipeline) as device:
 
     def timeDeltaToMilliS(delta) -> float:
         return delta.total_seconds()*1000
